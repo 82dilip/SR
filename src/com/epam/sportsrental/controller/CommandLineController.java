@@ -44,31 +44,40 @@ public class CommandLineController implements Controller {
         switch(caseType){
             case "a":
                 //User can see the goods available
-                ShopRepresentation.toRepresentation(GOODS_AVAILABLE_MSG, goods);
+                displayGoods(goods);
                 break;
 
             case "b":
                 //User can search by goods.
                 if(args.length == 3){
                     //Expecting args[1] as query param and args[2] as query param value.
-                    SearchController searchController = new SearchController();
-                    Map<SportEquipment, Integer>  searchResults = searchController.search(args[1], args[2]);
-                    ShopRepresentation.toRepresentation(SEARCH_RESULTS_MSG, searchResults);
+                    processSearch(args[1], args[2]);
                 }
 
             case "c":
                 //User can pick an equipment unit to rent – up to three units totally in a cart.
-                //Expecting args[1] as id and args[2] as operation add/delete.
-                ICartController cartController = new CartController();
-                if(args.length == 3){
-                    if(args[1].equals("add")){
-                        cartController.addToCart(Integer.parseInt(args[2]));
-                    } else if(args[1].equals("delete")){
-                        cartController.deleteFromCart(Integer.parseInt(args[2]));
-                    }
-                    ShopRepresentation.toRepresentation(CART_MSG, RentUnit.getUnits());
-                }
-
+                //Expecting args[1] as add/delete and args[2] as id.
+                handleCartOperations(args);
         }
+    }
+
+    private static void displayGoods(Map<SportEquipment, Integer> goods){
+        ShopRepresentation.toRepresentation(GOODS_AVAILABLE_MSG, goods);
+    }
+
+    private static void processSearch(String queryParam, String queryParamValue ){
+        SearchController searchController = new SearchController();
+        Map<SportEquipment, Integer>  searchResults = searchController.search(queryParam, queryParamValue);
+        ShopRepresentation.toRepresentation(SEARCH_RESULTS_MSG, searchResults);
+    }
+
+    private static void handleCartOperations(String[] args){
+        ICartController cartController = new CartController();
+        if(args[1].equals("add")){
+            cartController.addToCart(Integer.parseInt(args[2]));
+        } else if(args[1].equals("delete")){
+            cartController.deleteFromCart(Integer.parseInt(args[2]));
+        }
+        ShopRepresentation.toRepresentation(CART_MSG, RentUnit.getUnits());
     }
 }
